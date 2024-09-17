@@ -1,0 +1,62 @@
+/* AdminDashboard.css */
+
+.admin-dashboard {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .dashboard-header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    text-align: right;
+  }
+  
+  .dashboard-header button {
+    background-color: #f44336;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .dashboard-content {
+    padding: 20px;
+  }
+  
+  .dashboard-content h2 {
+    color: #333;
+  }
+  
+  .user-list {
+    margin-top: 20px;
+  }
+  
+  .user-list h3 {
+    color: #555;
+  }
+  
+  .user-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .user-list li {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .user-list li:hover {
+    background-color: #e0e0e0;
+  }
+  

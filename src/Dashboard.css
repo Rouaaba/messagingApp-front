@@ -1,0 +1,101 @@
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+  
+  .dashboard-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+  }
+  
+  .profile-menu {
+    position: relative;
+  }
+  
+  .profile-icon {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  .menu-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+    padding: 10px;
+    z-index: 1000;
+  }
+  
+  .menu-dropdown button {
+    background: none;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .menu-dropdown button:hover {
+    background: #f0f0f0;
+  }
+  
+  .dashboard-content {
+    display: flex;
+    flex: 1;
+  }
+  
+  .user-panel {
+    width: 300px;
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+    padding: 10px;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+  }
+  
+  .user-panel ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .user-panel li {
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .user-panel li.selected {
+    background-color: #f0f0f0;
+  }
+  
+  .message-panel {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .conversation {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .message-panel textarea {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
+  .message-panel button {
+    margin-top: 10px;
+  }
+  
