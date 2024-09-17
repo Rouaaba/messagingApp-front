@@ -10,21 +10,30 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      // Make the login request
       const response = await axios.post('/login', null, {
         params: { username, password },
         withCredentials: true // Ensure cookies are sent with requests
       });
-
-      // Redirect based on role (Example assumes user role; adjust if needed)
-      if (response.status === 200) {
-        navigate('/user-dashboard'); // Adjust according to role if needed
+  
+      // Extract the response data which is a simple string
+      const redirectUrl = response.data;
+  
+      // Redirect based on the response value
+      if (redirectUrl === 'Admin Dashboard') {
+        navigate('/admin/dashboard');
+      } else if (redirectUrl === 'User Dashboard') {
+        navigate('/user/dashboard');
       } else {
-        console.error('Login failed:', response);
+        console.error('Unknown redirect URL:', redirectUrl);
       }
     } catch (error) {
       console.error('Login error:', error);
     }
   };
+  
+  
+  
 
   return (
     <form onSubmit={handleLogin}>
@@ -33,12 +42,14 @@ function Login() {
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         placeholder="Username"
+        required
       />
       <input
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
+        required
       />
       <button type="submit">Login</button>
     </form>
