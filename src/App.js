@@ -5,6 +5,7 @@ import AdminDashboard from './AdminDashboard';
 import Profile from './Profile';
 import UpdateUser from './UpdateUser';
 import Register from './Register';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (

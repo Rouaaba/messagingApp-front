@@ -1,7 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './Dashboard.css'; // Ensure this file exists
+import {
+  Container,
+  Grid,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  CircularProgress,
+  Box,
+  AppBar,
+  Toolbar,
+  Avatar
+} from '@mui/material';
+import { AccountCircle, ExitToApp } from '@mui/icons-material';
 
 function UserDashboard() {
   const [users, setUsers] = useState([]);
@@ -9,7 +27,7 @@ function UserDashboard() {
   const [messageContent, setMessageContent] = useState('');
   const [conversation, setConversation] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showMenu, setShowMenu] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
   // Fetch users
@@ -85,70 +103,117 @@ function UserDashboard() {
     }
   };
 
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', bgcolor: '#f0f4f8' }}>
+        <CircularProgress />
+      </Container>
+    );
   }
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <div className="profile-menu">
-          <button 
-            className="profile-icon" 
-            onClick={() => setShowMenu(!showMenu)}
+    <>
+      <AppBar position="static" sx={{ bgcolor: '#CDC1FF' }}>
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            User Dashboard
+          </Typography>
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleClick}
           >
-            <span>🔽</span> {/* Example icon */}
-          </button>
-          {showMenu && (
-            <div className="menu-dropdown">
-              <button onClick={() => navigate('/profile')}>Profile</button>
-              <button onClick={handleLogout}>Logout</button>
-            </div>
-          )}
-        </div>
-      </header>
+            <Avatar sx={{ bgcolor: '#CDC1FF' }}>
+              <AccountCircle />
+            </Avatar>
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem onClick={() => navigate('/profile')}>Profile</MenuItem>
+            <MenuItem onClick={handleLogout}>
+              <ExitToApp sx={{ mr: 1 }} /> Logout
+            </MenuItem>
+          </Menu>
+        </Toolbar>
+      </AppBar>
 
-      <div className="dashboard-content">
-        <div className="user-panel">
-          <h2>Users</h2>
-          <ul>
-            {users.map(user => (
-              <li 
-                key={user.id} 
-                onClick={() => setSelectedUser(user)}
-                className={selectedUser?.id === user.id ? 'selected' : ''}
-              >
-                {user.username}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="message-panel">
-          {selectedUser ? (
-            <>
-              <h2>Conversation with {selectedUser.username}</h2>
-              <div className="conversation">
-                {Array.isArray(conversation) && conversation.length > 0 ? (
-                  conversation.map((msg, index) => (
-                    <p key={index}>{msg}</p>
-                  ))
-                ) : (
-                  <p>No messages found.</p>
-                )}
-              </div>
-              <textarea
-                value={messageContent}
-                onChange={e => setMessageContent(e.target.value)}
-                placeholder="Type your message here..."
-              />
-              <button onClick={handleSendMessage}>Send</button>
-            </>
-          ) : (
-            <p>Please select a user to start a conversation</p>
-          )}
-        </div>
-      </div>
-    </div>
+      <Container sx={{ mt: 3, bgcolor: '#ffffff', borderRadius: 1, boxShadow: 2 }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={3}>
+            <Box sx={{ mb: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2, bgcolor: '#F5EFFF' }}>
+              <Typography variant="h6" gutterBottom>
+                Users
+              </Typography>
+              <List>
+                {users.map(user => (
+                  <ListItem
+                    button
+                    key={user.id}
+                    onClick={() => setSelectedUser(user)}
+                    selected={selectedUser?.id === user.id}
+                    sx={{
+                      bgcolor: selectedUser?.id === user.id ? '#E5D9F2' : 'inherit',
+                      '&:hover': { bgcolor: '#E5D9F2' }
+                    }}
+                  >
+                    <ListItemText primary={user.username} />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={9}>
+            {selectedUser ? (
+              <>
+                <Typography variant="h6" gutterBottom>
+                  Conversation with {selectedUser.username}
+                </Typography>
+                <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2, minHeight: '300px', mb: 2, bgcolor: '#F5EFFF', overflowY: 'auto' }}>
+                  {Array.isArray(conversation) && conversation.length > 0 ? (
+                    conversation.map((msg, index) => (
+                      <Typography key={index} sx={{ textAlign: msg.sender === selectedUser.email ? 'right' : 'left', mb: 1 }}>
+                        {msg.content}
+                      </Typography>
+                    ))
+                  ) : (
+                    <Typography>No messages found.</Typography>
+                  )}
+                </Box>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  variant="outlined"
+                  value={messageContent}
+                  onChange={e => setMessageContent(e.target.value)}
+                  placeholder="Type your message here..."
+                  sx={{ mb: 2 }}
+                />
+                <Button variant="contained" sx={{
+                    bgcolor: '#b3a4ff', // Custom color
+                    '&:hover': { bgcolor: '#A594F9' } // Slightly darker on hover
+                  }} onClick={handleSendMessage}>
+                  Send
+                </Button>
+              </>
+            ) : (
+              <Typography>Please select a user to start a conversation</Typography>
+            )}
+          </Grid>
+        </Grid>
+      </Container>
+    </>
   );
 }
 
