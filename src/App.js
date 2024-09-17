@@ -11,10 +11,10 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/user-dashboard" element={<UserDashboard />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/user/dashboard" element={<UserDashboard />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/update-user" element={<UpdateUser />} />
+        <Route path="/admin/dashboard" element={<UpdateUser />} />
         <Route path="/" element={<Login />} /> {/* Default route */}
         <Route path="/register" element={<Register/>} />
       </Routes>
