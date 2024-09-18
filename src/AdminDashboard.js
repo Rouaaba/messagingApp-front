@@ -27,6 +27,7 @@ function AdminDashboard() {
 
   useEffect(() => {
     if (selectedUser) {
+      console.log('Fetching conversation for:', selectedUser.email);
       fetchConversation(selectedUser.email);
     }
   }, [selectedUser]);
@@ -46,12 +47,16 @@ function AdminDashboard() {
   };
 
   const fetchConversation = (email) => {
+    console.log('Fetching conversation for:', email);
     axios.get(`/messages/conversation?email=${email}`)
       .then(response => {
+        console.log('API Response:', response.data);
         if (Array.isArray(response.data)) {
+          // Log the first item to check its structure
+          console.log('First item in conversation:', response.data[0]);
           setConversation(response.data);
         } else {
-          console.error('Unexpected response format for conversation:', response.data);
+          console.error('Unexpected response format:', response.data);
           setConversation([]);
         }
       })
@@ -60,16 +65,8 @@ function AdminDashboard() {
         setConversation([]);
       });
   };
-
-  const handleLogout = () => {
-    axios.post('/logout')
-      .then(() => {
-        navigate('/login');
-      })
-      .catch(error => {
-        console.error('Error during logout:', error);
-      });
-  };
+  
+  
 
   const handleCreateUser = () => {
     axios.post('/users/create', newUser)
@@ -92,6 +89,16 @@ function AdminDashboard() {
     setOpenDeleteDialog(false);
     setPassword('');
     setUserToDelete(null);
+  };
+
+  const handleLogout = () => {
+    axios.post('/logout')
+      .then(() => {
+        navigate('/login');
+      })
+      .catch(error => {
+        console.error('Error during logout:', error);
+      });
   };
 
   const handleDeleteUser = () => {
@@ -228,112 +235,128 @@ function AdminDashboard() {
             <Typography>Page {currentPage + 1} of {totalPages}</Typography>
             <Button onClick={() => goToPage(currentPage + 1)} disabled={currentPage >= totalPages - 1}>Next</Button>
           </Box>
-        </Box>
-
-        <Box flex="2" sx={{ padding: '16px' }}>
-          {selectedUser ? (
-            <>
-              <Typography variant="h6" sx={{ marginBottom: '16px', color: '#674188' }}>
-                Conversation with {selectedUser.username}
-              </Typography>
-              <Box sx={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #e0e0e0', borderRadius: '4px', padding: '8px' }}>
-                {conversation.map((msg, index) => (
-                  <Box key={index} sx={{ marginBottom: '8px', padding: '8px', borderRadius: '4px', backgroundColor: msg.sender === selectedUser.email ? '#E2BFD9' : '#F7EFE5' }}>
-                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{msg.sender}</Typography>
-                    <Typography variant="body2">{msg.content}</Typography>
-                    <Typography variant="caption" sx={{ color: '#888888' }}>{new Date(msg.timestamp).toLocaleString()}</Typography>
-                  </Box>
-                ))}
-              </Box>
-              <Box mt={2}>
-                <TextField
-                  label="Message"
-                  variant="outlined"
-                  fullWidth
-                  value={messageContent}
-                  onChange={(e) => setMessageContent(e.target.value)}
-                />
-                <Button
-                  variant="contained"
-                  onClick={handleSendMessage}
-                  sx={{
-                    marginTop: '8px',
-                    backgroundColor: '#C8A1E0',
-                    '&:hover': { backgroundColor: '#674188' },
-                    color: '#ffffff'
-                  }}
-                >
-                  Send
-                </Button>
-              </Box>
-            </>
-          ) : (
-            <Typography>Select a user to view conversation</Typography>
+          {/* Create User Form */}
+          {showCreateUserForm && (
+            <Box mt={2}>
+              <TextField
+                label="Username"
+                variant="outlined"
+                fullWidth
+                value={newUser.username}
+                onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                sx={{ marginBottom: '16px' }}
+              />
+              <TextField
+                label="Email"
+                variant="outlined"
+                fullWidth
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                sx={{ marginBottom: '16px' }}
+              />
+              <TextField
+                label="Password"
+                variant="outlined"
+                type="password"
+                fullWidth
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                sx={{ marginBottom: '16px' }}
+              />
+              <Button
+                variant="contained"
+                onClick={handleCreateUser}
+                sx={{
+                  backgroundColor: '#C8A1E0',
+                  '&:hover': { backgroundColor: '#674188' },
+                  color: '#ffffff'
+                }}
+              >
+                Create User
+              </Button>
+            </Box>
           )}
         </Box>
+
+        {selectedUser && (
+          <Box flex="2" sx={{ padding: '16px' }}>
+            <Typography variant="h6" sx={{ marginBottom: '16px', color: '#674188' }}>
+              Conversations with {selectedUser.username}
+            </Typography>
+            <Box sx={{ maxHeight: '400px', overflowY: 'auto', marginBottom: '16px' }}>
+            <List>
+              {conversation.map((msg, index) => (
+                <ListItem
+                key={index}
+                sx={{
+                  backgroundColor: '#F7EFE5',
+                  border: '1px solid #E2BFD9', // Outline color
+                  borderRadius: '4px' // Optional: Adds rounded corners
+                }}
+              >
+                <ListItemText primary={msg} />
+              </ListItem>
+              ))}
+            </List>
+
+            </Box>
+            <TextField
+              label="Type your message here"
+              variant="outlined"
+              fullWidth
+              multiline
+              rows={4}
+              value={messageContent}
+              onChange={(e) => setMessageContent(e.target.value)}
+              sx={{ marginBottom: '16px' }}
+            />
+            <Button
+              variant="contained"
+              onClick={handleSendMessage}
+              sx={{
+                backgroundColor: '#C8A1E0',
+                '&:hover': { backgroundColor: '#674188' },
+                color: '#ffffff'
+              }}
+            >
+              Send Message
+            </Button>
+          </Box>
+        )}
       </Box>
 
-      <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
+      {/* Delete User Confirmation Dialog */}
+      <Dialog
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+      >
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to delete the user {userToDelete?.username}? You will need to enter your password to confirm this action.</Typography>
+          <Typography>Are you sure you want to delete user {userToDelete?.username}?</Typography>
           <TextField
+            label="Your Password"
             type="password"
-            label="Password"
             fullWidth
-            variant="outlined"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             sx={{ marginTop: '16px' }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDeleteDialog} color="primary">Cancel</Button>
-          <Button onClick={handleDeleteUser} color="secondary">Delete</Button>
-        </DialogActions>
-      </Dialog>
-
-      {showCreateUserForm && (
-        <Box sx={{ marginTop: '20px', padding: '16px', border: '1px solid #e0e0e0', borderRadius: '4px', backgroundColor: '#ffffff' }}>
-          <Typography variant="h6">Create User</Typography>
-          <TextField
-            label="Username"
-            variant="outlined"
-            fullWidth
-            value={newUser.username}
-            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-            sx={{ marginBottom: '16px' }}
-          />
-          <TextField
-            label="Email"
-            variant="outlined"
-            fullWidth
-            value={newUser.email}
-            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-            sx={{ marginBottom: '16px' }}
-          />
-          <TextField
-            label="Password"
-            type="password"
-            variant="outlined"
-            fullWidth
-            value={newUser.password}
-            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-            sx={{ marginBottom: '16px' }}
-          />
+          <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
           <Button
+            onClick={handleDeleteUser}
             variant="contained"
-            onClick={handleCreateUser}
             sx={{
-              backgroundColor: '#C8A1E0',
-              '&:hover': { backgroundColor: '#674188' },
+              backgroundColor: '#FF6F61',
+              '&:hover': { backgroundColor: '#E53F3F' },
               color: '#ffffff'
             }}
           >
-            Create User
+            Delete
           </Button>
-        </Box>
-      )}
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

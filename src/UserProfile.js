@@ -44,7 +44,7 @@ function UserProfile() {
       alert('Password is required to edit your profile.');
     }
   };
-
+//`/users/all?page=${page}&size=10`
   const handleDelete = () => {
     if (password) {
       if (window.confirm('Are you sure you want to delete your account?')) {
@@ -84,7 +84,7 @@ function UserProfile() {
   return (
     <Box sx={{ padding: '20px', backgroundColor: '#F7EFE5' }}>
       <header style={{ display: 'flex', alignItems: 'center', padding: '10px 20px', backgroundColor: '#C8A1E0', borderRadius: '8px' }}>
-        <IconButton onClick={() => navigate('/user/dashboard')} sx={{ color: '#ffffff', '&:hover': { backgroundColor: 'transparent' } }}>
+        <IconButton onClick={() => navigate('/admin/dashboard')} sx={{ color: '#ffffff', '&:hover': { backgroundColor: 'transparent' } }}>
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 'bold', flexGrow: 1, textAlign: 'center' }}>Profile</Typography>
