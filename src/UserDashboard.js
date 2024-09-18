@@ -1,25 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import {
-  Container,
-  Grid,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-  TextField,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-  CircularProgress,
-  Box,
-  AppBar,
-  Toolbar,
-  Avatar
-} from '@mui/material';
-import { AccountCircle, ExitToApp } from '@mui/icons-material';
+import { Button, List, ListItem, ListItemText, TextField, Box, Typography, CircularProgress, Menu, MenuItem, IconButton, Avatar } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function UserDashboard() {
   const [users, setUsers] = useState([]);
@@ -103,117 +86,127 @@ function UserDashboard() {
     }
   };
 
-  const handleClick = (event) => {
+  const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
   if (loading) {
-    return (
-      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', bgcolor: '#f0f4f8' }}>
-        <CircularProgress />
-      </Container>
-    );
+    return <CircularProgress />;
   }
 
   return (
-    <>
-      <AppBar position="static" sx={{ bgcolor: '#CDC1FF' }}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            User Dashboard
-          </Typography>
-          <IconButton
-            edge="end"
-            color="inherit"
-            onClick={handleClick}
-          >
-            <Avatar sx={{ bgcolor: '#CDC1FF' }}>
-              <AccountCircle />
-            </Avatar>
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem onClick={() => navigate('/profile')}>Profile</MenuItem>
-            <MenuItem onClick={handleLogout}>
-              <ExitToApp sx={{ mr: 1 }} /> Logout
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
+      
+    // Inline styles
+    <Box sx={{ padding: '20px', backgroundColor: '#F7EFE5' }}>
+      <header className="dashboard-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', backgroundColor: '#C8A1E0', borderRadius: '8px'}}> 
+        <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 'bold' }}>User Dashboard</Typography>
+        <IconButton
+  onClick={handleMenuClick}
+  sx={{
+    color: '#C8A1E0',
+    '&:hover': {
+      backgroundColor: 'transparent',
+    },
+    '&:focus': {
+      outline: 'none',
+    },
+    // Remove any border or background color that might be causing the red box
+    border: 'none',
+    backgroundColor: 'transparent',
+  }}
+>
+  
+  <Avatar sx={{ bgcolor: '#ffffff' }}>
+    <AccountCircleIcon fontSize="large" sx={{ color: '#674188' }} />
+  </Avatar>
+  
+</IconButton>
 
-      <Container sx={{ mt: 3, bgcolor: '#ffffff', borderRadius: 1, boxShadow: 2 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={3}>
-            <Box sx={{ mb: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2, bgcolor: '#F5EFFF' }}>
-              <Typography variant="h6" gutterBottom>
-                Users
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+          PaperProps={{
+            sx: { // Material UI
+              borderRadius: '8px',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              mt: 1.5,
+            },
+          }}
+        >
+          <MenuItem onClick={() => navigate('/user/profile')}>Profile</MenuItem>
+          <MenuItem onClick={handleLogout}>Logout</MenuItem>
+        </Menu>
+      </header> 
+
+      <Box display="flex" mt={3}>
+        <Box flex="1" mr={2} sx={{ borderRight: '1px solid #e0e0e0', padding: '16px' }}>
+          <Typography variant="h6" sx={{ marginBottom: '16px', color: '#674188' }}>Users</Typography>
+          <List>
+            {users.map(user => (
+              <ListItem
+                button
+                key={user.id}
+                onClick={() => setSelectedUser(user)}
+                selected={selectedUser?.id === user.id}
+                sx={{
+                  backgroundColor: selectedUser?.id === user.id ? '#E2BFD9' : 'inherit',
+                  '&:hover': { backgroundColor: '#C8A1E0' }
+                }}
+              >
+                <ListItemText primary={user.username} />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+
+        <Box flex="2" sx={{ padding: '16px' }}>
+          {selectedUser ? (
+            <>
+              <Typography variant="h6" sx={{ marginBottom: '16px', color: '#674188' }}>
+                Conversation with {selectedUser.username}
               </Typography>
-              <List>
-                {users.map(user => (
-                  <ListItem
-                    button
-                    key={user.id}
-                    onClick={() => setSelectedUser(user)}
-                    selected={selectedUser?.id === user.id}
-                    sx={{
-                      bgcolor: selectedUser?.id === user.id ? '#E5D9F2' : 'inherit',
-                      '&:hover': { bgcolor: '#E5D9F2' }
-                    }}
-                  >
-                    <ListItemText primary={user.username} />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={9}>
-            {selectedUser ? (
-              <>
-                <Typography variant="h6" gutterBottom>
-                  Conversation with {selectedUser.username}
-                </Typography>
-                <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 2, minHeight: '300px', mb: 2, bgcolor: '#F5EFFF', overflowY: 'auto' }}>
-                  {Array.isArray(conversation) && conversation.length > 0 ? (
-                    conversation.map((msg, index) => (
-                      <Typography key={index} sx={{ textAlign: msg.sender === selectedUser.email ? 'right' : 'left', mb: 1 }}>
-                        {msg.content}
-                      </Typography>
-                    ))
-                  ) : (
-                    <Typography>No messages found.</Typography>
-                  )}
-                </Box>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={4}
-                  variant="outlined"
-                  value={messageContent}
-                  onChange={e => setMessageContent(e.target.value)}
-                  placeholder="Type your message here..."
-                  sx={{ mb: 2 }}
-                />
-                <Button variant="contained" sx={{
-                    bgcolor: '#b3a4ff', // Custom color
-                    '&:hover': { bgcolor: '#A594F9' } // Slightly darker on hover
-                  }} onClick={handleSendMessage}>
-                  Send
-                </Button>
-              </>
-            ) : (
-              <Typography>Please select a user to start a conversation</Typography>
-            )}
-          </Grid>
-        </Grid>
-      </Container>
-    </>
+              <Box sx={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '16px', padding: '16px', borderRadius: '8px', backgroundColor: '#ffffff', boxShadow: 1 }}>
+                {Array.isArray(conversation) && conversation.length > 0 ? (
+                  conversation.map((msg, index) => (
+                    <Typography key={index} variant="body1" sx={{ marginBottom: '8px' }}>
+                      {msg}
+                    </Typography>
+                  ))
+                ) : (
+                  <Typography variant="body2">No messages found.</Typography>
+                )}
+              </Box>
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Type your message"
+                value={messageContent}
+                onChange={e => setMessageContent(e.target.value)}
+                sx={{ marginBottom: '8px' }}
+              />
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: '#C8A1E0',
+                  '&:hover': { backgroundColor: '#674188' },
+                  color: '#ffffff'
+                }}
+                onClick={handleSendMessage}
+              >
+                Send
+              </Button>
+            </>
+          ) : (
+            <Typography variant="body2">Please select a user to start a conversation</Typography>
+          )}
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

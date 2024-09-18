@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Box, TextField, Button, Typography, CircularProgress } from '@mui/material';
 
 function UpdateUser() {
   const location = useLocation();
@@ -9,18 +10,19 @@ function UpdateUser() {
 
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (userId) {
       // Fetch user data to pre-fill the form, if necessary
       axios.get(`/users/${userId}`)
         .then(response => {
-          // Set the initial value of input based on fetched data
           setInput(response.data.username || response.data.email || '');
           setLoading(false);
         })
         .catch(error => {
           console.error('Error fetching user data:', error);
+          setError(''); // Clear error state to avoid UI display
           setLoading(false);
         });
     }
@@ -34,25 +36,43 @@ function UpdateUser() {
       })
       .catch(error => {
         console.error('Error updating user:', error);
-        alert('Error updating user');
+        setError(''); // Clear error state to avoid UI display
       });
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Box sx={{ padding: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#F7EFE5' }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
-    <div>
-      <h2>Update User</h2>
-      <input
-        type="text"
-        placeholder="New Username or Email"
+    <Box sx={{ padding: '20px', backgroundColor: '#F7EFE5', maxWidth: '500px', margin: '0 auto' }}>
+      <Typography variant="h6" sx={{ marginBottom: '16px', color: '#674188' }}>Update User</Typography>
+      
+      <TextField
+        fullWidth
+        variant="outlined"
+        label="New Username or Email"
         value={input}
         onChange={e => setInput(e.target.value)}
+        sx={{ marginBottom: '16px', color: '#674188' }}
       />
-      <button onClick={handleUpdate}>Update User</button>
-    </div>
+      
+      <Button
+        variant="contained"
+        sx={{
+          backgroundColor: '#C8A1E0',
+          '&:hover': { backgroundColor: '#674188' },
+          color: '#ffffff'
+        }}
+        onClick={handleUpdate}
+      >
+        Update User
+      </Button>
+    </Box>
   );
 }
 

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './AdminDashboard.css'; // Ensure this file exists
+import { Button, List, ListItem, ListItemText, TextField, Box, Typography, CircularProgress, Menu, MenuItem, IconButton, Avatar, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
@@ -9,12 +11,14 @@ function AdminDashboard() {
   const [messageContent, setMessageContent] = useState('');
   const [conversation, setConversation] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [showCreateUserForm, setShowCreateUserForm] = useState(false);
   const [newUser, setNewUser] = useState({ username: '', email: '', password: '' });
-  const [userUpdate, setUserUpdate] = useState({ username: '', email: '', password: '' });
-  const [showMenu, setShowMenu] = useState(false);
-  const [showCreateUserForm, setShowCreateUserForm] = useState(false); // Added state for form visibility
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [password, setPassword] = useState('');
+  const [userToDelete, setUserToDelete] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,10 +33,10 @@ function AdminDashboard() {
 
   const fetchUsers = (page) => {
     setLoading(true);
-    axios.get(`/users/all?page=${page}&size=10`) // Adjust size if needed
+    axios.get(`/users/all?page=${page}&size=10`)
       .then(response => {
-        setUsers(response.data.content); // Assuming response.data.content contains the list of users
-        setTotalPages(response.data.totalPages); // Assuming response.data.totalPages contains total pages info
+        setUsers(response.data.content);
+        setTotalPages(response.data.totalPages);
         setLoading(false);
       })
       .catch(error => {
@@ -71,38 +75,37 @@ function AdminDashboard() {
     axios.post('/users/create', newUser)
       .then(() => {
         setNewUser({ username: '', email: '', password: '' });
-        fetchUsers(currentPage); // Fetch users again to include the new one
-        setShowCreateUserForm(false); // Hide the form after creation
+        fetchUsers(currentPage);
+        setShowCreateUserForm(false);
       })
       .catch(error => {
         console.error('Error creating user:', error);
       });
   };
 
-  const handleDeleteUser = (id) => {
-    const confirmPassword = window.prompt('Please enter your password to confirm deletion:');
-    if (confirmPassword) {
-      axios.delete(`/admin/${id}`, { params: { password: confirmPassword } })
+  const handleOpenDeleteDialog = (user) => {
+    setUserToDelete(user);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+    setPassword('');
+    setUserToDelete(null);
+  };
+
+  const handleDeleteUser = () => {
+    if (password) {
+      axios.delete(`/admin/${userToDelete.id}`, { params: { password } })
         .then(() => {
           fetchUsers(currentPage);
+          handleCloseDeleteDialog();
         })
         .catch(error => {
           console.error('Error deleting user:', error);
         });
-    }
-  };
-
-  const handleEditProfile = () => {
-    if (selectedUser) {
-      axios.put(`/users/${selectedUser.id}`, userUpdate)
-        .then(() => {
-          setUserUpdate({ username: '', email: '', password: '' });
-          setSelectedUser(null);
-          fetchUsers(currentPage);
-        })
-        .catch(error => {
-          console.error('Error updating user:', error);
-        });
+    } else {
+      alert('Please enter your password');
     }
   };
 
@@ -130,123 +133,208 @@ function AdminDashboard() {
     }
   };
 
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   if (loading) {
-    return <div>Loading...</div>;
+    return <CircularProgress />;
   }
 
   return (
-    <div className="admin-dashboard">
-      <header className="dashboard-header">
-        <button onClick={handleLogout}>Logout</button>
-        <div className="profile-menu">
-          <button 
-            className="profile-icon" 
-            onClick={() => setShowMenu(!showMenu)}
+    <Box sx={{ padding: '20px', backgroundColor: '#F7EFE5' }}>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', backgroundColor: '#C8A1E0', borderRadius: '8px' }}>
+        <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 'bold' }}>Admin Dashboard</Typography>
+        <div>
+          <IconButton
+            onClick={handleMenuClick}
+            sx={{
+              color: '#C8A1E0',
+              '&:hover': { backgroundColor: 'transparent' },
+              '&:focus': { outline: 'none' },
+              border: 'none',
+              backgroundColor: 'transparent'
+            }}
           >
-            <span>🔽</span> {/* Example icon */}
-          </button>
-          {showMenu && (
-            <div className="menu-dropdown">
-              <button onClick={() => navigate('/profile')}>Profile</button>
-              <button onClick={handleLogout}>Logout</button>
-            </div>
-          )}
+            <Avatar sx={{ bgcolor: '#ffffff' }}>
+              <AccountCircleIcon fontSize="large" sx={{ color: '#674188' }} />
+            </Avatar>
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            PaperProps={{
+              sx: {
+                borderRadius: '8px',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                mt: 1.5
+              }
+            }}
+          >
+            <MenuItem onClick={() => navigate('/admin/profile')}>Profile</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
         </div>
-        <button 
-          className="create-user-button" 
-          onClick={() => setShowCreateUserForm(!showCreateUserForm)}
-        >
-          {showCreateUserForm ? 'Close Create User Form' : 'Create User'}
-        </button>
       </header>
-      <div className="dashboard-content">
-        <div className="user-list-section">
-          <h2>User List</h2>
-          <ul className="user-list">
+
+      <Box display="flex" mt={3}>
+        <Box flex="1" mr={2} sx={{ borderRight: '1px solid #e0e0e0', padding: '16px' }}>
+          <Typography variant="h6" sx={{ marginBottom: '16px', color: '#674188' }}>Users</Typography>
+          <List>
             {users.map(user => (
-              <li key={user.id} className="user-item">
-                <div className="user-info">
-                  <span>{user.username} - {user.email}</span>
-                </div>
-                <div className="user-actions">
-                  <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
-                  <button onClick={() => { setSelectedUser(user); fetchConversation(user.email); }}>Send Message</button>
-                </div>
-              </li>
+              <ListItem
+                button
+                key={user.id}
+                onClick={() => setSelectedUser(user)}
+                selected={selectedUser?.id === user.id}
+                sx={{
+                  backgroundColor: selectedUser?.id === user.id ? '#E2BFD9' : 'inherit',
+                  '&:hover': { backgroundColor: '#C8A1E0' }
+                }}
+              >
+                <ListItemText primary={user.username} />
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => handleOpenDeleteDialog(user)}
+                  sx={{ color: '#FF6F61' }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </ListItem>
             ))}
-          </ul>
+          </List>
+          <Box mt={2}>
+            <Button
+              variant="contained"
+              onClick={() => setShowCreateUserForm(!showCreateUserForm)}
+              sx={{
+                backgroundColor: '#C8A1E0',
+                '&:hover': { backgroundColor: '#674188' },
+                color: '#ffffff'
+              }}
+            >
+              {showCreateUserForm ? 'Close Create User Form' : 'Create User'}
+            </Button>
+          </Box>
           {/* Pagination Controls */}
-          <div className="pagination-controls">
-            <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 0}>
-              Previous
-            </button>
-            <span>Page {currentPage + 1} of {totalPages}</span>
-            <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage >= totalPages - 1}>
-              Next
-            </button>
-          </div>
-        </div>
+          <Box mt={2} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 0}>Previous</Button>
+            <Typography>Page {currentPage + 1} of {totalPages}</Typography>
+            <Button onClick={() => goToPage(currentPage + 1)} disabled={currentPage >= totalPages - 1}>Next</Button>
+          </Box>
+        </Box>
 
-        {/* Create User Form */}
-        {showCreateUserForm && (
-          <div className="create-user-form">
-            <h2>Create New User</h2>
-            <form onSubmit={(e) => { e.preventDefault(); handleCreateUser(); }}>
-              <div>
-                <label>Username:</label>
-                <input
-                  type="text"
-                  value={newUser.username}
-                  onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-                  required
+        <Box flex="2" sx={{ padding: '16px' }}>
+          {selectedUser ? (
+            <>
+              <Typography variant="h6" sx={{ marginBottom: '16px', color: '#674188' }}>
+                Conversation with {selectedUser.username}
+              </Typography>
+              <Box sx={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #e0e0e0', borderRadius: '4px', padding: '8px' }}>
+                {conversation.map((msg, index) => (
+                  <Box key={index} sx={{ marginBottom: '8px', padding: '8px', borderRadius: '4px', backgroundColor: msg.sender === selectedUser.email ? '#E2BFD9' : '#F7EFE5' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{msg.sender}</Typography>
+                    <Typography variant="body2">{msg.content}</Typography>
+                    <Typography variant="caption" sx={{ color: '#888888' }}>{new Date(msg.timestamp).toLocaleString()}</Typography>
+                  </Box>
+                ))}
+              </Box>
+              <Box mt={2}>
+                <TextField
+                  label="Message"
+                  variant="outlined"
+                  fullWidth
+                  value={messageContent}
+                  onChange={(e) => setMessageContent(e.target.value)}
                 />
-              </div>
-              <div>
-                <label>Email:</label>
-                <input
-                  type="email"
-                  value={newUser.email}
-                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label>Password:</label>
-                <input
-                  type="password"
-                  value={newUser.password}
-                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                  required
-                />
-              </div>
-              <button type="submit">Create User</button>
-            </form>
-          </div>
-        )}
+                <Button
+                  variant="contained"
+                  onClick={handleSendMessage}
+                  sx={{
+                    marginTop: '8px',
+                    backgroundColor: '#C8A1E0',
+                    '&:hover': { backgroundColor: '#674188' },
+                    color: '#ffffff'
+                  }}
+                >
+                  Send
+                </Button>
+              </Box>
+            </>
+          ) : (
+            <Typography>Select a user to view conversation</Typography>
+          )}
+        </Box>
+      </Box>
 
-        {/* Messaging */}
-        {selectedUser && (
-          <div className="message-panel">
-            <h3>Send Message to {selectedUser.username}</h3>
-            <div className="conversation">
-              {Array.isArray(conversation) && conversation.length > 0 ? (
-                conversation.map((msg, index) => (
-                  <p key={index}>{msg}</p>
-                ))
-              ) : (
-                <p>No messages found.</p>
-              )}
-            </div>
-            <textarea
-              value={messageContent}
-              onChange={e => setMessageContent(e.target.value)}
-              placeholder="Type your message here..."
-            />
-            <button onClick={handleSendMessage}>Send</button>
-          </div>
-        )}
-      </div>
-    </div>
+      <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete the user {userToDelete?.username}? You will need to enter your password to confirm this action.</Typography>
+          <TextField
+            type="password"
+            label="Password"
+            fullWidth
+            variant="outlined"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{ marginTop: '16px' }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog} color="primary">Cancel</Button>
+          <Button onClick={handleDeleteUser} color="secondary">Delete</Button>
+        </DialogActions>
+      </Dialog>
+
+      {showCreateUserForm && (
+        <Box sx={{ marginTop: '20px', padding: '16px', border: '1px solid #e0e0e0', borderRadius: '4px', backgroundColor: '#ffffff' }}>
+          <Typography variant="h6">Create User</Typography>
+          <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
+            value={newUser.username}
+            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+            sx={{ marginBottom: '16px' }}
+          />
+          <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
+            value={newUser.email}
+            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+            sx={{ marginBottom: '16px' }}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            fullWidth
+            value={newUser.password}
+            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+            sx={{ marginBottom: '16px' }}
+          />
+          <Button
+            variant="contained"
+            onClick={handleCreateUser}
+            sx={{
+              backgroundColor: '#C8A1E0',
+              '&:hover': { backgroundColor: '#674188' },
+              color: '#ffffff'
+            }}
+          >
+            Create User
+          </Button>
+        </Box>
+      )}
+    </Box>
   );
 }
 

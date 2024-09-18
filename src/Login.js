@@ -33,8 +33,8 @@ const Login = () => {
     };
 
     return (
-        <Container maxWidth="sm" sx={{ mt: 5 }}>
-            <Typography variant="h4" gutterBottom>Login</Typography>
+        <Container maxWidth="sm" sx={{ mt: 5, backgroundColor: '#F7EFE5', padding: '20px', borderRadius: '8px' }}>
+            <Typography variant="h4" gutterBottom sx={{ color: '#674188' }}>Login</Typography>
             <form onSubmit={handleLogin}>
                 <TextField
                     fullWidth
@@ -46,6 +46,21 @@ const Login = () => {
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Username"
                     required
+                    sx={{ 
+                        marginBottom: '16px',
+                        backgroundColor: '#E2BFD9', // Background color
+                        '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                                borderColor: '#674188', // Outline color
+                            },
+                            '&:hover fieldset': {
+                                borderColor: '#674188', // Outline color on hover
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#674188', // Outline color when focused
+                            },
+                        },
+                    }}
                 />
                 <TextField
                     fullWidth
@@ -58,15 +73,41 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                     required
+                    sx={{ 
+                        marginBottom: '16px',
+                        backgroundColor: '#E2BFD9', // Background color
+                        '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                                borderColor: '#674188', // Outline color
+                            },
+                            '&:hover fieldset': {
+                                borderColor: '#674188', // Outline color on hover
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#674188', // Outline color when focused
+                            },
+                        },
+                    }}
                 />
-                <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>Login</Button>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                        backgroundColor: '#C8A1E0',
+                        '&:hover': { backgroundColor: '#674188' },
+                        color: '#ffffff',
+                        mt: 2
+                    }}
+                >
+                    Login
+                </Button>
                 {error && (
                     <Alert severity="error" sx={{ mt: 2 }}>
                         {error}
                     </Alert>
                 )}
-                <Typography variant="body2" sx={{ mt: 2 }}>
-                    Don't have an account? <Link href="/register">Register here</Link>
+                <Typography variant="body2" sx={{ mt: 2, color: '#674188' }}>
+                    Don't have an account? <Link href="/register" sx={{ color: '#C8A1E0', textDecoration: 'none' }}>Register here</Link>
                 </Typography>
             </form>
         </Container>
