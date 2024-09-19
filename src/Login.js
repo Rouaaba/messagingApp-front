@@ -102,10 +102,11 @@ const Login = () => {
                     Login
                 </Button>
                 {error && (
-                    <Alert severity="error" sx={{ mt: 2 }}>
+                    <Alert className="error-message" severity="error" sx={{ mt: 2 }}>
                         {error}
                     </Alert>
                 )}
+
                 <Typography variant="body2" sx={{ mt: 2, color: '#674188' }}>
                     Don't have an account? <Link href="/register" sx={{ color: '#C8A1E0', textDecoration: 'none' }}>Register here</Link>
                 </Typography>

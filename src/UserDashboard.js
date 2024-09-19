@@ -120,7 +120,7 @@ function UserDashboard() {
   }}
 >
   
-  <Avatar sx={{ bgcolor: '#ffffff' }}>
+  <Avatar sx={{ bgcolor: '#ffffff' }} data-testid="profile-avatar">
     <AccountCircleIcon fontSize="large" sx={{ color: '#674188' }} />
   </Avatar>
   
