@@ -84,9 +84,14 @@ function AdminProfile() {
   return (
     <Box sx={{ padding: '20px', backgroundColor: '#F7EFE5' }}>
       <header style={{ display: 'flex', alignItems: 'center', padding: '10px 20px', backgroundColor: '#C8A1E0', borderRadius: '8px' }}>
-        <IconButton onClick={() => navigate('/user/dashboard')} sx={{ color: '#ffffff', '&:hover': { backgroundColor: 'transparent' } }}>
-          <ArrowBackIcon />
-        </IconButton>
+      <IconButton
+        data-testid="back-button"  // Add a unique identifier
+        onClick={() => navigate('/admin/dashboard')}
+        sx={{ color: '#ffffff', '&:hover': { backgroundColor: 'transparent' } }}
+      >
+        <ArrowBackIcon />
+      </IconButton>
+
         <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 'bold', flexGrow: 1, textAlign: 'center' }}>Profile</Typography>
       </header>
 
@@ -112,6 +117,7 @@ function AdminProfile() {
           <Button
             variant="outlined"
             color="secondary"
+            data-testid="open-delete-dialog"
             onClick={() => handleDialogOpen('delete')}
           >
             Delete Account
@@ -137,7 +143,13 @@ function AdminProfile() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="primary">Cancel</Button>
-          <Button onClick={dialogType === 'edit' ? handleEdit : handleDelete} color="primary">{dialogType === 'edit' ? 'Edit' : 'Delete'}</Button>
+          <Button
+            onClick={dialogType === 'edit' ? handleEdit : handleDelete}
+            color="primary"
+            data-testid={dialogType === 'edit' ? 'confirm-edit' : 'confirm-delete'} // Add unique data-testid
+          >
+            {dialogType === 'edit' ? 'Edit' : 'Delete'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

@@ -16,6 +16,7 @@ export default defineConfig({
   projectId: 'mia7y1',
   env: {
     baseUrl,
+    CYPRESS_RECORD_KEY: "ca20e14e-a692-425f-81c5-406473bf4f71"
   },
   e2e: {
     baseUrl,

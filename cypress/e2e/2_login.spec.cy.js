@@ -4,6 +4,7 @@ describe('User Login', () => {
     });
   
     it('should log in as a normal user and redirect to User Dashboard', () => {
+      cy.visit('http://localhost:3000/login');
       cy.get("#username").type('newuser');
       cy.get("#password").type('password123');
       cy.get('button[type="submit"]').click();
@@ -11,6 +12,7 @@ describe('User Login', () => {
     });
   
     it('should log in as an admin and redirect to Admin Dashboard', () => {
+      cy.visit('http://localhost:3000/login');
       cy.get("#username").type('adminuser');
       cy.get("#password").type('adminpassword123');
       cy.get('button[type="submit"]').click();
